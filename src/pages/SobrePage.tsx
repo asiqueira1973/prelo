@@ -2,9 +2,9 @@ export default function SobrePage() {
   return (
     <main className="flex-1">
       <div className="max-w-2xl mx-auto px-6 py-16 sm:py-24">
-        <h1 className="font-serif text-4xl sm:text-5xl text-charcoal mb-12 leading-tight">Prelo</h1>
+        <h1 className="text-5xl sm:text-6xl font-semibold text-ink tracking-tightest mb-10 leading-[1.05]">Prelo</h1>
 
-        <div className="space-y-6 text-base text-charcoal leading-relaxed">
+        <div className="space-y-5 text-lg md:text-xl text-ink-2 leading-relaxed tracking-tight">
           <p>
             Prelo é um agregador de lançamentos literários brasileiros.
           </p>
@@ -20,14 +20,14 @@ export default function SobrePage() {
         </div>
 
         <div className="mt-14 space-y-4">
-          <h2 className="font-serif text-2xl text-charcoal">Feito por</h2>
-          <p className="text-base text-charcoal leading-relaxed">
+          <h2 className="text-2xl font-semibold text-ink tracking-tight">Feito por</h2>
+          <p className="text-lg text-ink-2 leading-relaxed">
             Prelo é um projeto da{' '}
             <a
               href="https://www.dablab.com.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-coral underline underline-offset-2 hover:text-coral/80 transition-colors"
+              className="text-accent hover:underline"
             >
               Dab Lab
             </a>

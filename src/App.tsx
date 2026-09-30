@@ -29,13 +29,13 @@ export default function App() {
   ]);
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      <Navbar currentView={view} onNavigate={setView} />
+    <div className="min-h-screen bg-white flex flex-col">
+      <Navbar currentView={view} onNavigate={(v) => { setView(v); window.scrollTo({ top: 0 }); }} />
       {view === 'home' && <AnteriorPage />}
       {view === 'livrarias' && <LivrariasPage />}
       {view === 'sobre' && <SobrePage />}
-      <footer className="bg-cream border-t border-stone-200 py-6">
-        <div className="max-w-screen-xl mx-auto px-6 text-center text-xs text-stone-400">
+      <footer className="bg-fill border-t border-line/60 py-5">
+        <div className="max-w-screen-xl mx-auto px-6 text-xs text-ink-3">
           © {new Date().getFullYear()} Prelo · Lançamentos literários brasileiros
         </div>
       </footer>

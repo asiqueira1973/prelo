@@ -22,7 +22,7 @@ export default function BookCover({ src, title, className = '' }: BookCoverProps
   if (showPlaceholder) {
     return (
       <div className={`w-full h-full flex items-center justify-center p-4 ${className}`}>
-        <p className="font-serif text-xs text-stone-500 text-center leading-snug line-clamp-4">
+        <p className="text-xs font-medium text-ink-3 text-center leading-snug line-clamp-4">
           {title}
         </p>
       </div>

@@ -21,23 +21,23 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-cream border-b border-stone-200">
-      <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl backdrop-saturate-150 border-b border-line/60">
+      <div className="max-w-screen-xl mx-auto px-6 h-12 flex items-center justify-between">
         <button
           onClick={() => handleNavigate('home')}
-          className="font-serif text-2xl text-charcoal tracking-tight hover:opacity-75 transition-opacity"
+          className="text-lg font-semibold text-ink tracking-tight hover:opacity-70 transition-opacity"
         >
           Prelo
         </button>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-7">
           {navItems.map(({ view, label }) => (
             <button
               key={view}
               onClick={() => handleNavigate(view)}
-              className={`text-sm font-medium transition-colors ${
-                currentView === view ? 'text-coral' : 'text-charcoal hover:text-coral'
+              className={`text-xs transition-colors ${
+                currentView === view ? 'text-ink' : 'text-ink-2 hover:text-ink'
               }`}
             >
               {label}
@@ -51,21 +51,21 @@ export default function Navbar({ currentView, onNavigate }: NavbarProps) {
           onClick={() => setOpen((o) => !o)}
           aria-label="Menu"
         >
-          <span className={`block h-0.5 w-5 bg-charcoal transition-transform duration-200 ${open ? 'translate-y-[7px] rotate-45' : ''}`} />
-          <span className={`block h-0.5 w-5 bg-charcoal transition-opacity duration-200 ${open ? 'opacity-0' : ''}`} />
-          <span className={`block h-0.5 w-5 bg-charcoal transition-transform duration-200 ${open ? '-translate-y-[7px] -rotate-45' : ''}`} />
+          <span className={`block h-0.5 w-5 bg-ink transition-transform duration-200 ${open ? 'translate-y-[7px] rotate-45' : ''}`} />
+          <span className={`block h-0.5 w-5 bg-ink transition-opacity duration-200 ${open ? 'opacity-0' : ''}`} />
+          <span className={`block h-0.5 w-5 bg-ink transition-transform duration-200 ${open ? '-translate-y-[7px] -rotate-45' : ''}`} />
         </button>
       </div>
 
       {/* Mobile dropdown */}
       {open && (
-        <nav className="md:hidden border-t border-stone-200 bg-cream px-6 py-3 flex flex-col gap-0">
+        <nav className="md:hidden border-t border-line/60 bg-white px-6 py-2 flex flex-col gap-0">
           {navItems.map(({ view, label }) => (
             <button
               key={view}
               onClick={() => handleNavigate(view)}
-              className={`text-sm font-medium py-3 text-left transition-colors border-b border-stone-100 last:border-0 ${
-                currentView === view ? 'text-coral' : 'text-charcoal'
+              className={`text-base py-3 text-left transition-colors border-b border-line/60 last:border-0 ${
+                currentView === view ? 'text-ink font-medium' : 'text-ink-2'
               }`}
             >
               {label}

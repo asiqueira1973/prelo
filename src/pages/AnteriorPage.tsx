@@ -211,8 +211,8 @@ export default function AnteriorPage() {
     return (
       <main className="flex-1">
         <div className="max-w-screen-xl mx-auto px-6 py-12">
-          <div className="animate-pulse h-8 w-48 bg-stone-200 rounded mb-8" />
-          <div className="animate-pulse h-12 w-64 bg-stone-200 rounded mb-8" />
+          <div className="animate-pulse h-10 w-72 bg-fill rounded-lg mb-8" />
+          <div className="animate-pulse h-9 w-96 bg-fill rounded-full mb-8" />
         </div>
       </main>
     );
@@ -221,7 +221,7 @@ export default function AnteriorPage() {
   if (options.length === 0) {
     return (
       <main className="flex-1">
-        <div className="max-w-screen-xl mx-auto px-6 py-24 text-center text-stone-400 text-sm">
+        <div className="max-w-screen-xl mx-auto px-6 py-24 text-center text-ink-3 text-sm">
           Nenhum período disponível.
         </div>
       </main>
@@ -231,17 +231,30 @@ export default function AnteriorPage() {
   return (
     <>
       <main className="flex-1">
-        <div className="max-w-screen-xl mx-auto px-6 py-6 md:py-12">
-          <div className="mb-6 md:mb-8 flex flex-col gap-2">
-            <label htmlFor="month-select" className="text-xs font-medium text-stone-400 uppercase tracking-widest">
+        <div className="max-w-screen-xl mx-auto px-6 pb-16 md:pb-24">
+          <header className="pt-10 md:pt-20 pb-8 md:pb-12">
+            <p className="text-sm md:text-base font-semibold text-ink-2 mb-2">Lançamentos literários</p>
+            {selected && (
+              <h1 className="text-4xl md:text-6xl font-semibold text-ink tracking-tightest leading-[1.05]">
+                {selected.label}
+              </h1>
+            )}
+            <p className="mt-3 md:mt-4 text-lg md:text-2xl text-ink-2 tracking-tight min-h-[1.5em]">
+              {!loading && livros.length > 0 &&
+                `${livros.length} livros de ${editoras.length} ${editoras.length === 1 ? 'editora' : 'editoras'}.`}
+            </p>
+          </header>
+
+          <div className="mb-8 md:mb-12 flex flex-wrap items-center gap-2">
+            <label htmlFor="month-select" className="sr-only">
               Selecionar período
             </label>
-            <div className="relative inline-block">
+            <div className="relative">
               <select
                 id="month-select"
                 value={selected?.value ?? ''}
                 onChange={handleMonthChange}
-                className="appearance-none bg-white border border-stone-300 text-charcoal text-sm rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-coral cursor-pointer"
+                className="appearance-none bg-white border border-line text-ink text-sm rounded-full pl-4 pr-9 py-2 min-h-[36px] focus:outline-none focus:ring-4 focus:ring-accent/20 focus:border-accent cursor-pointer"
               >
                 {options.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -249,17 +262,9 @@ export default function AnteriorPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-2 pointer-events-none" />
             </div>
-          </div>
-
-          {selected && (
-            <h1 className="font-serif text-xl md:text-2xl lg:text-3xl text-charcoal mb-6 md:mb-8 leading-tight">
-              Lançamentos de {selected.label}
-            </h1>
-          )}
-
-          <div className="mb-6 md:mb-8">
+            {editoras.length > 0 && <span className="hidden sm:block w-px h-5 bg-line mx-2" aria-hidden />}
             <PublisherFilter
               editoras={editoras}
               selected={selectedEditoras}

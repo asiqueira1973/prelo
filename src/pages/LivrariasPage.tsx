@@ -41,8 +41,8 @@ export default function LivrariasPage() {
 
   return (
     <main className="flex-1">
-      <div className="max-w-screen-xl mx-auto px-6 py-6 md:py-12">
-        <h1 className="font-serif text-xl md:text-2xl lg:text-3xl text-charcoal mb-6 md:mb-10 leading-tight">
+      <div className="max-w-screen-lg mx-auto px-6 py-6 md:py-12 pb-16 md:pb-24">
+        <h1 className="text-4xl md:text-6xl font-semibold text-ink tracking-tightest leading-[1.05] pt-4 md:pt-8 mb-10 md:mb-14">
           Livrarias em São Paulo
         </h1>
 
@@ -50,40 +50,40 @@ export default function LivrariasPage() {
           <ul className="space-y-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <li key={i} className="animate-pulse space-y-2">
-                <div className="h-5 w-48 bg-stone-200 rounded" />
-                <div className="h-4 w-72 bg-stone-200 rounded" />
-                <div className="h-4 w-32 bg-stone-200 rounded" />
+                <div className="h-5 w-48 bg-fill rounded" />
+                <div className="h-4 w-72 bg-fill rounded" />
+                <div className="h-4 w-32 bg-fill rounded" />
               </li>
             ))}
           </ul>
         )}
 
         {error && (
-          <p className="text-sm text-stone-400">Não foi possível carregar as livrarias.</p>
+          <p className="text-sm text-ink-3">Não foi possível carregar as livrarias.</p>
         )}
 
         {!loading && !error && livrarias.length === 0 && (
-          <p className="text-sm text-stone-400">Nenhuma livraria encontrada.</p>
+          <p className="text-sm text-ink-3">Nenhuma livraria encontrada.</p>
         )}
 
         {!loading && !error && livrarias.length > 0 && (
-          <ul className="divide-y divide-stone-200">
+          <ul className="grid sm:grid-cols-2 gap-x-12 border-t border-line/60">
             {livrarias.map((l) => {
               const handle = l.instagram ? l.instagram.replace(/^@/, '') : null;
               return (
-                <li key={l.id} className="py-6 first:pt-0">
-                  <p className="font-serif font-bold text-charcoal text-lg leading-snug">
+                <li key={l.id} className="py-6 border-b border-line/60">
+                  <p className="font-semibold text-ink text-lg tracking-tight leading-snug">
                     {l.nome}
                   </p>
                   {l.endereco && (
-                    <p className="mt-1 text-sm text-stone-600">{l.endereco}</p>
+                    <p className="mt-1 text-sm text-ink-2">{l.endereco}</p>
                   )}
                   {handle && (
                     <a
                       href={`https://www.instagram.com/${handle}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-1 inline-block text-sm text-coral hover:underline"
+                      className="mt-1 inline-block text-sm text-accent hover:underline"
                     >
                       {handle}
                     </a>
