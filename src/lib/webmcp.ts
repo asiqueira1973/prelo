@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 // WebMCP (experimental, Chrome com a flag "WebMCP for testing"): a página
-// registra ferramentas em navigator.modelContext para o agente do navegador.
+// registra ferramentas no modelContext para o agente do navegador.
 // Em navegadores sem suporte, nada acontece.
 
 type ToolResult = { content: { type: 'text'; text: string }[] };
@@ -15,18 +15,25 @@ export type WebMcpTool = {
 };
 
 type ModelContext = {
-  registerTool: (tool: {
-    name: string;
-    description: string;
-    inputSchema: Record<string, unknown>;
-    annotations?: { readOnlyHint?: boolean };
-    execute: (input: Record<string, unknown>) => Promise<ToolResult>;
-  }) => unknown;
+  registerTool: (
+    tool: {
+      name: string;
+      description: string;
+      inputSchema: Record<string, unknown>;
+      annotations?: { readOnlyHint?: boolean };
+      execute: (input: Record<string, unknown>) => Promise<ToolResult>;
+    },
+    options?: { signal?: AbortSignal }
+  ) => unknown;
   unregisterTool?: (name: string) => void;
 };
 
+// O Chrome 154 expõe a API em document.modelContext; versões anteriores da
+// proposta usavam navigator.modelContext.
 function modelContext(): ModelContext | null {
-  const mc = (navigator as Navigator & { modelContext?: ModelContext }).modelContext;
+  const mc =
+    (navigator as Navigator & { modelContext?: ModelContext }).modelContext ??
+    (document as Document & { modelContext?: ModelContext }).modelContext;
   return mc && typeof mc.registerTool === 'function' ? mc : null;
 }
 
@@ -47,39 +54,49 @@ export function useWebMcpTools(tools: WebMcpTool[]) {
     const mc = modelContext();
     if (!mc) return;
 
+    // O abort do signal desregistra as ferramentas (Chrome 154); unregisterTool
+    // cobre as versões que ainda usam remoção por nome.
+    const controller = new AbortController();
     const registered = toolsRef.current.map((t) => t.name);
-    const registrations = toolsRef.current.map((tool) => {
+
+    for (const tool of toolsRef.current) {
       try {
-        return mc.registerTool({
-          name: tool.name,
-          description: tool.description,
-          inputSchema: tool.inputSchema,
-          annotations: tool.annotations,
-          execute: async (input) => {
-            const current = toolsRef.current.find((t) => t.name === tool.name);
-            try {
-              return asResult(await current!.execute(input ?? {}));
-            } catch (e) {
-              return asResult(`Erro: ${e instanceof Error ? e.message : String(e)}`);
-            }
+        const ret = mc.registerTool(
+          {
+            name: tool.name,
+            description: tool.description,
+            inputSchema: tool.inputSchema,
+            annotations: tool.annotations,
+            execute: async (input) => {
+              const current = toolsRef.current.find((t) => t.name === tool.name);
+              try {
+                return asResult(await current!.execute(input ?? {}));
+              } catch (e) {
+                return asResult(`Erro: ${e instanceof Error ? e.message : String(e)}`);
+              }
+            },
           },
-        });
+          { signal: controller.signal }
+        );
+        if (ret instanceof Promise) {
+          ret.catch((e) => console.warn(`[webmcp] falha ao registrar ${tool.name}`, e));
+        }
       } catch (e) {
         console.warn(`[webmcp] falha ao registrar ${tool.name}`, e);
-        return null;
       }
-    });
+    }
 
     return () => {
-      registered.forEach((name, i) => {
-        const reg = registrations[i] as { unregister?: () => void } | null;
-        try {
-          if (reg && typeof reg.unregister === 'function') reg.unregister();
-          else mc.unregisterTool?.(name);
-        } catch {
-          // já removida
+      controller.abort();
+      if (mc.unregisterTool) {
+        for (const name of registered) {
+          try {
+            mc.unregisterTool(name);
+          } catch {
+            // já removida
+          }
         }
-      });
+      }
     };
   }, [names]);
 }
