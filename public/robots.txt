@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://prelo.art.br/sitemap.xml

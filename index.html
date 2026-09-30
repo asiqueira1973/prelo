@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -8,10 +8,15 @@
     <meta name="description" content="Acompanhe os lançamentos literários brasileiros das melhores editoras independentes. Atualizado semanalmente." />
     <meta property="og:title" content="Prelo" />
     <meta property="og:description" content="Acompanhe os lançamentos literários brasileiros das melhores editoras independentes." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <link rel="canonical" href="https://prelo.art.br/" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
     <meta property="og:url" content="https://prelo.art.br" />
-    <meta property="og:image" content="https://bolt.new/static/og_default.png" />
+    <meta property="og:image" content="https://prelo.art.br/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png" />
+    <meta name="twitter:image" content="https://prelo.art.br/og.jpg" />
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2YK9HN88NP"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -22,6 +27,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Prelo — Lançamentos literários brasileiros</h1>
+      <p>Catálogo mensal de lançamentos das editoras brasileiras. Este site precisa de JavaScript. Agentes e LLMs: veja /llms.txt ou use o MCP em https://prelo-mcp.vercel.app/mcp (ferramenta buscar_livros).</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

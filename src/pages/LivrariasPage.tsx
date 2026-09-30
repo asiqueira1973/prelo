@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Livraria } from '../lib/supabase';
+import { useWebMcpTools } from '../lib/webmcp';
 
 export default function LivrariasPage() {
   const [livrarias, setLivrarias] = useState<Livraria[]>([]);
@@ -24,6 +25,19 @@ export default function LivrariasPage() {
     }
     load();
   }, []);
+
+  useWebMcpTools([
+    {
+      name: 'listar_livrarias',
+      description: 'Lista as livrarias independentes de São Paulo exibidas na página, com endereço e Instagram.',
+      inputSchema: { type: 'object', properties: {} },
+      annotations: { readOnlyHint: true },
+      execute: () =>
+        loading
+          ? 'A lista ainda está carregando, tente de novo em instantes.'
+          : livrarias.map(({ nome, endereco, instagram }) => ({ nome, endereco, instagram })),
+    },
+  ]);
 
   return (
     <main className="flex-1">

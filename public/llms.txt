@@ -1,0 +1,16 @@
+# Prelo
+
+> Catálogo de lançamentos literários brasileiros, organizado por mês e por editora. Os dados são coletados dos sites das editoras e atualizados toda segunda-feira.
+
+O site (https://prelo.art.br) é um app em JavaScript: o HTML inicial não traz os livros. Para consultar o catálogo, prefira uma das opções abaixo.
+
+## Acesso para agentes
+
+- [MCP do Prelo](https://prelo-mcp.vercel.app/mcp): servidor MCP público (Streamable HTTP, sem autenticação). Ferramenta `buscar_livros` com filtros opcionais `ano_mes` (YYYY-MM), `editora` e `autor` (busca parcial).
+- WebMCP: em navegadores com suporte a `navigator.modelContext`, a própria página registra ferramentas para listar períodos, trocar o mês, filtrar por editora, abrir um livro e navegar entre as páginas.
+
+## Páginas
+
+- Lançamentos do mês: página inicial, com seletor de período e filtro por editora.
+- Livrarias em São Paulo: livrarias independentes parceiras.
+- Sobre: o que é o Prelo.

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { supabase, monthRangeFilter } from '../lib/supabase';
 import type { Livro } from '../lib/supabase';
@@ -6,6 +6,7 @@ import PublisherFilter from '../components/PublisherFilter';
 import BookGrid from '../components/BookGrid';
 import BookPanel from '../components/BookPanel';
 import NewsletterSection from '../components/NewsletterSection';
+import { useWebMcpTools } from '../lib/webmcp';
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -35,6 +36,9 @@ export default function AnteriorPage() {
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  // Quem pediu a troca de mês pelo WebMCP espera o carregamento terminar.
+  const pendingLoads = useRef(new Map<string, ((livros: Livro[] | null) => void)[]>());
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadOptions() {
@@ -75,15 +79,23 @@ export default function AnteriorPage() {
         .lt('data_lancamento', to)
         .order('coletado_em', { ascending: false });
 
-      if (err) {
-        setError(true);
-      } else {
-        setLivros((data as Livro[]) ?? []);
-      }
+      const result = err ? null : ((data as Livro[]) ?? []);
+      if (result) setLivros(result);
+      else setError(true);
       setLoading(false);
+      setLoadedFor(selected!.value);
     }
     load();
   }, [selected]);
+
+  // Resolve depois do render, para a próxima ferramenta já ver o mês novo.
+  useEffect(() => {
+    if (!loadedFor) return;
+    const waiting = pendingLoads.current.get(loadedFor);
+    if (!waiting) return;
+    pendingLoads.current.delete(loadedFor);
+    waiting.forEach((resolve) => resolve(error ? null : livros));
+  }, [loadedFor, livros, error]);
 
   const editoras = useMemo(
     () => [...new Set(livros.map((l) => l.editora))].sort(),
@@ -100,6 +112,95 @@ export default function AnteriorPage() {
       prev.includes(editora) ? prev.filter((e) => e !== editora) : [...prev, editora]
     );
   };
+
+  const resumo = (l: Livro) => ({ id: l.id, titulo: l.titulo, autor: l.autor, editora: l.editora, data_lancamento: l.data_lancamento });
+
+  useWebMcpTools([
+    {
+      name: 'listar_periodos',
+      description: 'Lista os meses que têm lançamentos no Prelo (formato YYYY-MM) e qual está selecionado na tela.',
+      inputSchema: { type: 'object', properties: {} },
+      annotations: { readOnlyHint: true },
+      execute: () => ({
+        selecionado: selected?.value ?? null,
+        periodos: options.map((o) => ({ ano_mes: o.value, nome: o.label })),
+      }),
+    },
+    {
+      name: 'selecionar_periodo',
+      description: 'Troca o mês exibido na tela e devolve os lançamentos daquele mês. Use listar_periodos para ver os meses disponíveis.',
+      inputSchema: {
+        type: 'object',
+        properties: { ano_mes: { type: 'string', description: 'Mês no formato YYYY-MM, ex: 2026-09' } },
+        required: ['ano_mes'],
+      },
+      execute: async ({ ano_mes }) => {
+        const opt = options.find((o) => o.value === ano_mes);
+        if (!opt) {
+          return `Não há lançamentos em ${String(ano_mes)}. Meses disponíveis: ${options.map((o) => o.value).join(', ')}`;
+        }
+        const loaded = new Promise<Livro[] | null>((resolve) => {
+          const list = pendingLoads.current.get(opt.value) ?? [];
+          pendingLoads.current.set(opt.value, [...list, resolve]);
+        });
+        setSelectedLivro(null);
+        setSelected(opt);
+        const result = opt.value === loadedFor ? livros : await loaded;
+        if (!result) return 'Não foi possível carregar os lançamentos.';
+        return { periodo: opt.label, total: result.length, livros: result.map(resumo) };
+      },
+    },
+    {
+      name: 'filtrar_editoras',
+      description: 'Filtra na tela os lançamentos do mês atual por uma ou mais editoras (busca parcial, sem diferenciar maiúsculas). Lista vazia remove o filtro.',
+      inputSchema: {
+        type: 'object',
+        properties: { editoras: { type: 'array', items: { type: 'string' }, description: 'Nomes das editoras, ex: ["Todavia", "Fósforo"]' } },
+        required: ['editoras'],
+      },
+      execute: ({ editoras: pedidas }) => {
+        const termos = ((pedidas as string[]) ?? []).map((e) => e.toLowerCase());
+        const match = editoras.filter((e) => termos.some((t) => e.toLowerCase().includes(t)));
+        if (termos.length > 0 && match.length === 0) {
+          return `Nenhuma editora encontrada. Editoras deste mês: ${editoras.join(', ')}`;
+        }
+        setSelectedEditoras(match);
+        const visiveis = match.length === 0 ? livros : livros.filter((l) => match.includes(l.editora));
+        return { editoras_selecionadas: match, total: visiveis.length, livros: visiveis.map(resumo) };
+      },
+    },
+    {
+      name: 'listar_lancamentos',
+      description: 'Devolve os lançamentos visíveis na tela agora (mês e filtros atuais) e as editoras disponíveis no mês.',
+      inputSchema: { type: 'object', properties: {} },
+      annotations: { readOnlyHint: true },
+      execute: () => ({
+        periodo: selected?.label ?? null,
+        editoras_disponiveis: editoras,
+        editoras_selecionadas: selectedEditoras,
+        total: filtered.length,
+        livros: filtered.map(resumo),
+      }),
+    },
+    {
+      name: 'abrir_livro',
+      description: 'Abre na tela o painel de detalhes de um livro do mês atual, com capa e link para o site da editora. Aceita o id ou parte do título.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'id do livro (de listar_lancamentos)' },
+          titulo: { type: 'string', description: 'Título ou parte dele' },
+        },
+      },
+      execute: ({ id, titulo }) => {
+        const t = typeof titulo === 'string' ? titulo.toLowerCase() : null;
+        const livro = livros.find((l) => l.id === id) ?? (t ? livros.find((l) => l.titulo.toLowerCase().includes(t)) : undefined);
+        if (!livro) return 'Livro não encontrado no mês atual. Use selecionar_periodo ou listar_lancamentos.';
+        setSelectedLivro(livro);
+        return { ...resumo(livro), link_editora: livro.link_livro };
+      },
+    },
+  ]);
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const opt = options.find((o) => o.value === e.target.value) ?? null;
