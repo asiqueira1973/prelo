@@ -67,7 +67,10 @@ export default function AnteriorPage() {
           }
         }
         setOptions(opts);
-        setSelected(opts[0]);
+        // Abre no mês atual; meses futuros (pré-venda) ficam no seletor.
+        const hoje = new Date();
+        const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+        setSelected(opts.find((o) => o.value <= mesAtual) ?? opts[opts.length - 1]);
       }
       setLoadingOptions(false);
     }
