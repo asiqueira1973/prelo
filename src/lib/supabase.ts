@@ -22,6 +22,8 @@ export type Livraria = {
   endereco: string | null;
   instagram: string | null;
   ativa: boolean;
+  lat: number | null;
+  lng: number | null;
 };
 
 export function monthRangeFilter(year: number, month: number) {

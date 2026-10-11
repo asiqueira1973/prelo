@@ -18,3 +18,47 @@
     box-sizing: border-box;
   }
 }
+
+/* Balão do mapa de livrarias */
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif;
+}
+.prelo-pop + .prelo-pop {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e8e8ed;
+}
+.prelo-pop p {
+  margin: 0;
+}
+.prelo-pop-nome {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+.prelo-pop-end {
+  margin-top: 2px !important;
+  font-size: 13px;
+  color: #6e6e73;
+}
+.prelo-pop-ig {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #0071e3 !important;
+}
+.leaflet-container a.leaflet-control-zoom-in,
+.leaflet-container a.leaflet-control-zoom-out {
+  color: #1d1d1f;
+}
+
+/* Ruas do mapa em cinza claro */
+.prelo-tiles {
+  filter: grayscale(1) brightness(1.12) contrast(0.78);
+}
