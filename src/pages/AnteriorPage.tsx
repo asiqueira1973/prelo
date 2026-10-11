@@ -7,6 +7,7 @@ import BookGrid from '../components/BookGrid';
 import BookPanel from '../components/BookPanel';
 import NewsletterSection from '../components/NewsletterSection';
 import { useWebMcpTools } from '../lib/webmcp';
+import CountUp from '../components/CountUp';
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -39,6 +40,8 @@ export default function AnteriorPage() {
   // Quem pediu a troca de mês pelo WebMCP espera o carregamento terminar.
   const pendingLoads = useRef(new Map<string, ((livros: Livro[] | null) => void)[]>());
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  // Quantos livros entraram em cada ano, para o "até agora em AAAA".
+  const [porAno, setPorAno] = useState<Record<number, number>>({});
 
   useEffect(() => {
     async function loadOptions() {
@@ -48,6 +51,12 @@ export default function AnteriorPage() {
         .order('data_lancamento', { ascending: false });
 
       if (data && data.length > 0) {
+        const anos: Record<number, number> = {};
+        for (const row of data) {
+          const ano = parseInt(row.data_lancamento.slice(0, 4), 10);
+          anos[ano] = (anos[ano] ?? 0) + 1;
+        }
+        setPorAno(anos);
         const seen = new Set<string>();
         const opts: MonthOption[] = [];
         for (const row of data) {
@@ -240,8 +249,15 @@ export default function AnteriorPage() {
               </h1>
             )}
             <p className="mt-3 md:mt-4 text-lg md:text-2xl text-ink-2 tracking-tight min-h-[1.5em]">
-              {!loading && livros.length > 0 &&
-                `${livros.length} livros de ${editoras.length} ${editoras.length === 1 ? 'editora' : 'editoras'}.`}
+              {!loading && livros.length > 0 && selected && (
+                <>
+                  <CountUp value={livros.length} /> livros de {editoras.length}{' '}
+                  {editoras.length === 1 ? 'editora' : 'editoras'}.{' '}
+                  <span className="text-ink-3">
+                    <CountUp value={porAno[selected.year] ?? 0} duration={1400} /> em {selected.year}{selected.year === new Date().getFullYear() ? ' até agora' : ''}.
+                  </span>
+                </>
+              )}
             </p>
           </header>
 
